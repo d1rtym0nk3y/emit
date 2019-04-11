@@ -20,19 +20,16 @@ See documentation at https://github.com/ryanguill/emit
 
 component {
 
-	//intentionally don't use an init method so that subclasses do not have to call super.init()
-
-	private function _ensurePrivateVariables () {
-		if (!structKeyExists(variables, "_emit")) {
-			variables._emit = {};
-			_emit.listeners = structNew("linked");
-			_emit.maxListeners = 10;
-			_emit.caseSensitiveEventName = true;
-		}
+	// intentionally do use an init method, stuff might go boom
+	function init () {
+        variables._emit = {};
+        _emit.listeners = structNew("linked");
+        _emit.maxListeners = 10;
+        _emit.caseSensitiveEventName = true;
+        return this;
 	}
 
 	private function _normalizeEventName (required any eventName) {
-		_ensurePrivateVariables();
 
 		if (!isSimpleValue(eventName)) {
 			throw(type="Emit.invalidEventName", message="Invalid Event Name");
@@ -48,7 +45,6 @@ component {
 		Set the maximum listeners per event. You must do this per instance of emit (or subclass). See getMaxListeners().
 	*/
 	function setMaxListeners (required numeric n) {
-		_ensurePrivateVariables();
 		if (int(n) != n || n < 1) {
 			throw(type="Emit.InvalidMaxListeners", message="maxListeners must be a positive integer");
 		}
@@ -62,7 +58,6 @@ component {
 		which exceeds the limit, an exception of type Emit.Emit.maxListenersExceeded will be thrown.
 	*/
 	function getMaxListeners () {
-		_ensurePrivateVariables();
 		return _emit.maxListeners;
 	}
 
@@ -71,7 +66,6 @@ component {
 		see isCaseSensitiveEventName()
 	*/
 	function setCaseSensitiveEventName (required boolean value) {
-		_ensurePrivateVariables();
 		_emit.caseSensitiveEventName = value;
 	}
 
@@ -80,7 +74,6 @@ component {
 		use setCaseSensitiveEventName() to override. You must do this per instance of emit (or subclass).
 	*/
 	function isCaseSensitiveEventName () {
-		_ensurePrivateVariables();
 		return _emit.caseSensitiveEventName;
 	}
 
@@ -109,7 +102,6 @@ component {
 		will be thrown. See setMaxListeners(). See also many().
 	*/
 	function addEventListener (required any eventName, required any listener, boolean async = false, numeric timesToListen = -1) {
-		_ensurePrivateVariables();
 
 		if (isArray(eventName)) {
 			for (var en in eventName) {
@@ -157,7 +149,7 @@ component {
 		Alias for addEventListener() with timesToListen = 1.
 	*/
 	function once (required any eventName, required any listener, boolean async = false) {
-		_ensurePrivateVariables();
+
 		addEventListener(eventName, listener, async, 1);
 	}
 
@@ -165,7 +157,7 @@ component {
 		Alternative to addEventListener, useful for quickly setting a certain number of times to fire a particular listener.
 	*/
 	function many (required any eventName, required any listener, required numeric timesToListen, boolean async = false ) {
-		_ensurePrivateVariables();
+
 		addEventListener(eventName, listener, async, timesToListen);
 	}
 
@@ -178,7 +170,6 @@ component {
 		multiple events. This is only useful if you used the exact same handler for multiple events.
 	*/
 	function removeListener (required any eventName, required any listener) {
-		_ensurePrivateVariables();
 
 		if (isArray(eventName)) {
 			var output = false;
@@ -217,7 +208,6 @@ component {
 		names to remove all listeners from multiple events.
 	*/
 	function removeAllListeners (required any eventName) {
-		_ensurePrivateVariables();
 
 		if (isArray(eventName)) {
 			for (var en in eventName) {
@@ -248,7 +238,6 @@ component {
 		listener (function), async (boolean), and once (boolean);
 	*/
 	function listeners (required string eventName) {
-		_ensurePrivateVariables();
 
 		eventName = _normalizeEventName(eventName);
 
@@ -268,7 +257,6 @@ component {
 		multiple events with the same argument collection.
 	*/
 	function emit (required any eventName, struct args = {}) {
-		_ensurePrivateVariables();
 
 		if (isArray(eventName)) {
 			var output = false;
